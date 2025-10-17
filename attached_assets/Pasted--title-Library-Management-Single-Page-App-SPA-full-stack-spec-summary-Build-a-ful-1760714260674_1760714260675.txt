@@ -1,0 +1,109 @@
+{
+  "title": "Library Management — Single Page App (SPA) full-stack spec",
+  "summary": "Build a full-scale Library Management SPA with PostgreSQL users (session-based), dynamic book data via public Book APIs, responsive neat UI, four scroll modules on one page, modal auth flows, profile + persistence after refresh, grid-driven genre and book pages, and deployment-ready code (works in Replit/agents).",
+  "tech_stack": {
+    "frontend": "React (or Vue) SPA, React Router, CSS modules or Tailwind alternative (no Google fonts), lightweight animation library (Framer Motion or AOS), video support via HTML5",
+    "backend": "Node.js + Express (or FastAPI if you prefer Python), session-based auth (express-session + connect-pg-simple), REST API",
+    "database": "PostgreSQL (local or container), recommended ORM: Knex or Sequelize/TypeORM",
+    "storage": "Optional S3 for images (can start without it)",
+    "deployment": "Replit/Heroku/EC2 (docker-compose ready)",
+    "testing": "Jest + Supertest for backend, Cypress or Playwright for E2E"
+  },
+  "ui_requirements": {
+    "layout": "Single-page, four vertical scroll modules (Home, Overview, About, Contact). Header contains left-aligned logo + nav links (Home, Overview, About, Contact). Right side of header: Sign Up and Sign In buttons (styled, unique color).",
+    "home_module": "Left: big quote about libraries (large type). Right: animated video/illustration (HTML5 or embedded mp4).",
+    "overview_module": "Quotes + supporting images in a card/slider layout.",
+    "about_module": "Paragraph(s) on impact of books, social media icons, visual cards.",
+    "contact_module": "Crafted contact block with two input fields: Email and Phone, plus team fake contact details and Send button.",
+    "auth_ui": "Login/Register/Forgot Password all handled by a magnified modal popup (not separate pages). Modal includes Email, Password, Confirm Password (register), and 'Forgot password' link opening a reset modal. On successful login show greeting (e.g., 'Hi, Mahesh') on top-right with avatar, update, and logout menu.",
+    "profile_modal": "Profile popup shows avatar, name, email, bio, Edit button. Avatar upload replaces previous image (optional S3).",
+    "main_content": "After login show a grid of genres (cards with image + genre name). Clicking a genre routes to /genre/:id (or /books?genre=) showing books in grid (image, title, short overview). Book detail page shows full overview, download/read online options.",
+    "read_preview": "If user tries to read without download, show first 5 pages (preview) and disable further pages until download or contact librarian.",
+    "fonts_colors": "Unique non-Google font(s) included locally or via CDN (license-free). Clean palette; ensure good contrast and polished spacing.",
+    "animations": "Smooth scroll, section reveals, subtle parallax on home video, hover states for cards. Use accessible motion settings."
+  },
+  "functional_requirements": {
+    "sessions": "Use server-side sessions (cookie + server store in Postgres). After login, the username persists after page refresh and session expiration handled gracefully.",
+    "auth": "Register: validate email format, ensure uniqueness. Login: validate credentials. Forgot password: send reset link to registered email; link opens a secure reset page/modal where user can change password; update stored password in DB.",
+    "book_data": "Do NOT hardcode books. Integrate with a public Books API (Google Books/Open Library) to fetch books by genre and populate book detail fields. Cache results in DB when helpful.",
+    "book_actions": "Download book (PDF/DOC) if available via API or local storage. If not downloadable, allow 5-page online preview. Contact librarian action on book detail must show librarian contact.",
+    "import_export": "Support import of tasks/datasets via file upload (PDF/DOC) endpoint that processes and creates tasks (if applicable). Export functionality to download resources should work without errors.",
+    "search": "Global search bar to search libraries and books by title, author, or keyword within selected location.",
+    "location_restriction": "Location logic: on first login detect or set user's state (default Andhra Pradesh). Do not ask again after login (but allow change from profile). Search and library lists restricted to selected location by default.",
+    "profile_features": "Upload avatar (overwrites previous), update name and bio, logout. Provide default avatar suggestions.",
+    "notifications": "In-app notification bar: notify on events like new content, import/export complete, task pending/completed. Notifications stored in DB."
+  },
+  "api_endpoints": {
+    "auth": [
+      { "POST /api/auth/register": "Register user (email, password, name). Validate uniqueness." },
+      { "POST /api/auth/login": "Login, create session cookie." },
+      { "POST /api/auth/forgot-password": "Send reset link to email." },
+      { "POST /api/auth/reset-password": "Consume reset token and update password." },
+      { "GET /api/auth/me": "Return current user from session." },
+      { "POST /api/auth/logout": "Destroy session." }
+    ],
+    "profile": [
+      { "GET /api/profile": "Get profile" },
+      { "PUT /api/profile": "Update profile (name, bio, avatar_url)" },
+      { "POST /api/profile/avatar": "Upload avatar (multipart/form-data)" }
+    ],
+    "books": [
+      { "GET /api/genres": "List genres" },
+      { "GET /api/genres/:id/books": "List books for genre (use external APIs + cache)" },
+      { "GET /api/books/:id": "Book details" },
+      { "GET /api/books/:id/preview": "Return first-5-page preview" },
+      { "GET /api/books/:id/download": "Trigger download if available" }
+    ],
+    "contact": [
+      { "POST /api/contact": "Send contact message (store & email notification to team)" }
+    ]
+  },
+  "db_schema": {
+    "users": {
+      "id": "uuid pk",
+      "email": "text unique not null",
+      "password_hash": "text not null",
+      "name": "text",
+      "bio": "text",
+      "avatar_url": "text",
+      "location": "text (default: Andhra Pradesh state code)",
+      "created_at": "timestamp"
+    },
+    "sessions": {
+      "sid": "text pk",
+      "sess": "json",
+      "expired": "timestamp"
+    },
+    "genres": { "id": "pk", "name": "text", "image_url": "text" },
+    "books_cache": { "id": "pk (api id)", "genre_id": "fk", "title": "text", "authors": "text", "overview": "text", "download_url": "text", "cached_at": "timestamp" },
+    "notifications": { "id","user_id","type","message","read","created_at" }
+  },
+  "ui_routes": [
+    { "GET /": "Single page with four modules and conditional main content after login" },
+    { "GET /genre/:id": "Grid of books" },
+    { "GET /book/:id": "Book detail page" }
+  ],
+  "security": {
+    "passwords": "bcrypt hashing",
+    "sessions": "secure cookie flags (HttpOnly, Secure in prod)",
+    "password-reset": "time-limited token stored hashed in DB"
+  },
+  "deliverables": [
+    "Frontend code (React) with modular components: Header, HomeModule, OverviewModule, AboutModule, ContactModule, GenreGrid, BookGrid, BookDetail, AuthModal, ProfileModal",
+    "Backend (Express) with endpoints above, session store using connect-pg-simple",
+    "Postgres migration scripts or SQL to create tables",
+    "README with local setup, env variables, and Replit/agent instructions",
+    "CI-ready Dockerfile + docker-compose example",
+    "Sample test users and example Book API keys/config"
+  ],
+  "dev_instructions": {
+    "run_local": [
+      "1) Create .env with DB_URL, SESSION_SECRET, EMAIL_SMTP config, BOOKS_API_KEY",
+      "2) Run Postgres (docker-compose or local)",
+      "3) Run backend: npm install && npm run dev",
+      "4) Run frontend: cd frontend && npm install && npm run dev"
+    ],
+    "replit_agent_hint": "Provide a single root package.json or separate workspace; include start scripts and an init script to run migrations. Agents should run tests and linting before deliverable."
+  },
+  "notes_for_agent": "Use public Books APIs (Open Library or Google Books). Cache results server-side. Keep UI accessible. Persist session across page refresh. Make email reset flow testable (console fallback). Provide sample dataset for Andhra Pradesh libraries. Ensure code compiles and includes instructions for deployment to EC2 or Replit."
+}

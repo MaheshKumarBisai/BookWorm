@@ -5,3 +5,4 @@ server/public
 vite.config.ts.*
 *.tar.gz
 Things_Should_Do_Before_Run_An_Application
+.env

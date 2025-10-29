@@ -14,24 +14,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User as UserType } from "@shared/schema";
 
 interface HeaderProps {
-  onAuthClick: (mode: 'login' | 'register') => void;
+  onAuthClick: (mode: "login" | "register") => void;
   onProfileClick: () => void;
   onLogout: () => void;
 }
 
 export function Header({ onAuthClick, onProfileClick, onLogout }: HeaderProps) {
   const [location] = useLocation();
-  
+
   const { data: user } = useQuery<UserType>({
-    queryKey: ['/api/auth/me'],
+    queryKey: ["/api/auth/me"],
   });
 
   const scrollToSection = (sectionId: string) => {
-    if (location !== '/') {
+    if (location !== "/") {
       window.location.href = `/#${sectionId}`;
     } else {
       const element = document.getElementById(sectionId);
-      element?.scrollIntoView({ behavior: 'smooth' });
+      element?.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -41,7 +41,7 @@ export function Header({ onAuthClick, onProfileClick, onLogout }: HeaderProps) {
         <div className="flex items-center justify-between h-18">
           {/* Logo */}
           <Link href="/">
-            <button 
+            <button
               className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
               data-testid="link-home"
             >
@@ -53,79 +53,96 @@ export function Header({ onAuthClick, onProfileClick, onLogout }: HeaderProps) {
           </Link>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1">
-            <Button
-              variant="ghost"
-              onClick={() => scrollToSection('home')}
-              data-testid="link-home-section"
-              className="font-medium"
-            >
-              Home
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => scrollToSection('overview')}
-              data-testid="link-overview"
-              className="font-medium"
-            >
-              Overview
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => scrollToSection('about')}
-              data-testid="link-about"
-              className="font-medium"
-            >
-              About
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => scrollToSection('contact')}
-              data-testid="link-contact"
-              className="font-medium"
-            >
-              Contact
-            </Button>
-          </nav>
+          {location === "/" && !window.location.hash && (
+            <nav className="hidden md:flex items-center gap-1">
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection("home")}
+                data-testid="link-home-section"
+                className="font-medium"
+              >
+                Home
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection("overview")}
+                data-testid="link-overview"
+                className="font-medium"
+              >
+                Overview
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection("about")}
+                data-testid="link-about"
+                className="font-medium"
+              >
+                About
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection("contact")}
+                data-testid="link-contact"
+                className="font-medium"
+              >
+                Contact
+              </Button>
+            </nav>
+          )}
 
           {/* Auth/User Section */}
           <div className="flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground hidden sm:inline">
-                  Hi, <span className="font-medium text-foreground">{user.name || 'User'}</span>
+                  Hi,{" "}
+                  <span className="font-medium text-foreground">
+                    {user.name || "User"}
+                  </span>
                 </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="rounded-full"
                       data-testid="button-user-menu"
                     >
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatarUrl || undefined} alt={user.name || 'User'} />
+                        <AvatarImage
+                          src={user.avatarUrl || undefined}
+                          alt={user.name || "User"}
+                        />
                         <AvatarFallback className="bg-primary text-primary-foreground">
-                          {user.name?.[0]?.toUpperCase() || 'U'}
+                          {user.name?.[0]?.toUpperCase() || "U"}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={onProfileClick} data-testid="button-profile">
+                    <DropdownMenuItem
+                      onClick={onProfileClick}
+                      data-testid="button-profile"
+                    >
                       <User className="mr-2 h-4 w-4" />
                       Profile
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/genres">
-                        <button className="flex items-center w-full" data-testid="link-genres">
+                        <button
+                          className="flex items-center w-full"
+                          data-testid="link-genres"
+                        >
                           <BookOpen className="mr-2 h-4 w-4" />
                           Browse Books
                         </button>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={onLogout} data-testid="button-logout">
+                    <DropdownMenuItem
+                      onClick={onLogout}
+                      data-testid="button-logout"
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </DropdownMenuItem>
@@ -136,14 +153,14 @@ export function Header({ onAuthClick, onProfileClick, onLogout }: HeaderProps) {
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
-                  onClick={() => onAuthClick('login')}
+                  onClick={() => onAuthClick("login")}
                   data-testid="button-signin"
                   className="font-medium"
                 >
                   Sign In
                 </Button>
                 <Button
-                  onClick={() => onAuthClick('register')}
+                  onClick={() => onAuthClick("register")}
                   data-testid="button-signup"
                   className="font-medium bg-accent text-accent-foreground hover:bg-accent/90"
                 >

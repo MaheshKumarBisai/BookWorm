@@ -1,6 +1,6 @@
 // Storage layer implementation with PostgreSQL - based on blueprint:javascript_database
 import { eq, and } from "drizzle-orm";
-import { db } from "./db";
+import { db } from "./db-local";
 import {
   users,
   genres,

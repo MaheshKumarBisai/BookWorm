@@ -127,17 +127,6 @@ export function Header({ onAuthClick, onProfileClick, onLogout }: HeaderProps) {
                       <User className="mr-2 h-4 w-4" />
                       Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/genres">
-                        <button
-                          className="flex items-center w-full"
-                          data-testid="link-genres"
-                        >
-                          <BookOpen className="mr-2 h-4 w-4" />
-                          Browse Books
-                        </button>
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={onLogout}
